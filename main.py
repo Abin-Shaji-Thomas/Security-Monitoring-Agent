@@ -1,28 +1,44 @@
 """
-Simple Security Monitoring Agent - Main Application
-Compresses logs with ScaleDown → Detects threats → Shows cost savings
+Security Monitoring Agent - Enhanced Main Application
+Features: Compression, Threat Detection, IP Intelligence, Scoring, AI Insights, History, PDF Reports
 """
 
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import os
 
 from src.compressor import SecurityLogCompressor
 from src.detector import SecurityLogDetector
+from src.ip_intelligence import IPThreatIntelligence
+from src.scoring import ThreatScoringEngine
+from src.ai_insights import AIInsightsEngine
+from src.history import ThreatHistoryDB
+from src.pdf_report import PDFReportGenerator
+from src.pattern_learning import PatternLearner
 
 app = FastAPI(
     title="Security Monitoring Agent",
-    description="Compress security logs and detect threats with cost savings",
-    version="1.0.0"
+    description="AI-Powered Security Log Analysis with Compression, Threat Detection, and Intelligence",
+    version="2.0.0"
 )
+
+# Initialize services
+ip_intel = IPThreatIntelligence()
+scoring_engine = ThreatScoringEngine()
+ai_insights = AIInsightsEngine()
+history_db = ThreatHistoryDB()
+pdf_generator = PDFReportGenerator()
+pattern_learner = PatternLearner()
 
 # Request/Response Models
 class AnalyzeRequest(BaseModel):
     logs: str
     prompt: str = "Identify security threats and anomalies"
+    generate_pdf: bool = False
+    learn_patterns: bool = False
 
 class ThreatInfo(BaseModel):
     type: str
@@ -31,6 +47,9 @@ class ThreatInfo(BaseModel):
     recommendation: str
     confidence: float
     affected: List[str]
+    risk_score: Optional[float] = None
+    source_ip: Optional[str] = None
+    country: Optional[str] = None
 
 class AnalyzeResponse(BaseModel):
     success: bool
@@ -39,6 +58,12 @@ class AnalyzeResponse(BaseModel):
     threats: List[ThreatInfo]
     compression_stats: Dict[str, Any]
     cost_savings: Dict[str, Any]
+    # New enhanced features
+    overall_security: Optional[Dict[str, Any]] = None
+    ip_intelligence: Optional[Dict[str, Any]] = None
+    executive_summary: Optional[str] = None
+    pdf_report_path: Optional[str] = None
+    pattern_anomalies: Optional[List[Dict]] = None
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -59,7 +84,7 @@ async def serve_frontend():
 @app.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_security_logs(request: AnalyzeRequest):
     """
-    Main endpoint: Compress logs → Detect threats → Return results with cost savings
+    Enhanced endpoint: Compress → Detect → Score → Analyze IPs → AI Insights → Save History → Generate PDF
     """
     try:
         # Step 1: Compress logs with ScaleDown
@@ -76,10 +101,62 @@ async def analyze_security_logs(request: AnalyzeRequest):
             compressed_context=compression_result.get('compressed_context')
         )
         
-        # Step 3: Calculate compression stats
+        # Step 3: IP Intelligence Analysis
+        ip_data = ip_intel.analyze_logs_ips(request.logs)
+        
+        # Step 4: Calculate threat scores
+        threat_scores = []
+        threats_with_scores = []
+        
+        for anomaly in anomalies:
+            # Calculate risk score for each threat
+            score = scoring_engine.calculate_threat_score(
+                threat_type=anomaly.type.value,
+                threat_count=1,
+                affected_resources=anomaly.affected_resources,
+                confidence=anomaly.confidence
+            )
+            threat_scores.append(score)
+            
+            # Find source IP if available
+            source_ip = None
+            country = None
+            for threat_ip in ip_data.get('threat_ips', []):
+                if threat_ip['ip'] in request.logs:
+                    source_ip = threat_ip['ip']
+                    country = threat_ip['country']
+                    break
+            
+            threats_with_scores.append({
+                'type': anomaly.type.value,
+                'severity': anomaly.severity.value,
+                'description': anomaly.description,
+                'recommendation': anomaly.recommendation,
+                'confidence': anomaly.confidence,
+                'affected': anomaly.affected_resources[:5],
+                'risk_score': score.final_score,
+                'source_ip': source_ip,
+                'country': country
+            })
+        
+        # Step 5: Calculate overall security score
+        overall_security = scoring_engine.calculate_overall_security_score(threat_scores)
+        
+        # Step 6: Generate AI insights
+        executive_summary = ai_insights.generate_executive_summary(
+            threats_with_scores,
+            overall_security,
+            ip_data
+        )
+        
+        # Step 7: Pattern learning anomalies
+        pattern_anomalies = None
+        if request.learn_patterns:
+            pattern_anomalies = pattern_learner.detect_anomalies(request.logs)
+        
+        # Step 8: Calculate compression stats
         stats = compressor.get_compression_stats(compression_result)
         
-        # Step 4: Calculate cost savings
         cost_savings = {
             'tokens_saved': stats['tokens_saved'],
             'percentage_saved': stats['savings_percent'],
@@ -88,29 +165,49 @@ async def analyze_security_logs(request: AnalyzeRequest):
             'latency_ms': stats['latency_ms']
         }
         
-        # Step 5: Format threats
-        threats = []
-        for anomaly in anomalies:
-            threats.append(ThreatInfo(
-                type=anomaly.type.value,
-                severity=anomaly.severity.value,
-                description=anomaly.description,
-                recommendation=anomaly.recommendation,
-                confidence=anomaly.confidence,
-                affected=anomaly.affected_resources[:5]  # Limit to 5
-            ))
+        compression_stats = {
+            'original_tokens': stats['original_tokens'],
+            'compressed_tokens': stats['compressed_tokens'],
+            'tokens_saved': stats['tokens_saved'],
+            'log_lines': len(request.logs.split('\n'))
+        }
+        
+        # Step 9: Save to history database
+        history_db.save_analysis(
+            threats=threats_with_scores,
+            overall_stats=overall_security,
+            compression_stats=compression_stats,
+            ip_data=ip_data
+        )
+        
+        # Step 10: Generate PDF report if requested
+        pdf_path = None
+        if request.generate_pdf:
+            pdf_path = pdf_generator.generate_report(
+                threats=threats_with_scores,
+                overall_stats=overall_security,
+                compression_stats=compression_stats,
+                ip_data=ip_data,
+                executive_summary=executive_summary
+            )
+        
+        # Step 11: Format response
+        formatted_threats = []
+        for threat in threats_with_scores:
+            formatted_threats.append(ThreatInfo(**threat))
         
         return AnalyzeResponse(
             success=True,
             compressed_context=compression_result.get('compressed_context', ''),
             ai_response=compression_result.get('content', 'Analysis complete'),
-            threats=threats,
-            compression_stats={
-                'original_tokens': stats['original_tokens'],
-                'compressed_tokens': stats['compressed_tokens'],
-                'tokens_saved': stats['tokens_saved']
-            },
-            cost_savings=cost_savings
+            threats=formatted_threats,
+            compression_stats=compression_stats,
+            cost_savings=cost_savings,
+            overall_security=overall_security,
+            ip_intelligence=ip_data,
+            executive_summary=executive_summary,
+            pdf_report_path=pdf_path,
+            pattern_anomalies=pattern_anomalies
         )
         
     except Exception as e:
@@ -123,8 +220,73 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "Security Monitoring Agent",
-        "version": "1.0.0"
+        "version": "2.0.0",
+        "features": [
+            "log_compression",
+            "threat_detection",
+            "ip_intelligence",
+            "risk_scoring",
+            "ai_insights",
+            "historical_analysis",
+            "pdf_reports",
+            "pattern_learning"
+        ]
     }
+
+
+@app.get("/history/trends")
+async def get_threat_trends(days: int = 7):
+    """Get threat trends over specified days"""
+    try:
+        trends = history_db.get_threat_trends(days)
+        return JSONResponse(content=trends)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/history/statistics")
+async def get_statistics():
+    """Get overall historical statistics"""
+    try:
+        stats = history_db.get_statistics()
+        return JSONResponse(content=stats)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/history/recent")
+async def get_recent_analyses(limit: int = 10):
+    """Get recent analysis sessions"""
+    try:
+        recent = history_db.get_recent_analyses(limit)
+        return JSONResponse(content={"analyses": recent})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/baseline/summary")
+async def get_baseline_summary():
+    """Get learned pattern baseline summary"""
+    try:
+        summary = pattern_learner.get_baseline_summary()
+        return JSONResponse(content=summary)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/baseline/learn")
+async def learn_patterns(logs: str, is_clean: bool = True):
+    """Learn patterns from clean log data"""
+    try:
+        pattern_learner.learn_from_logs(logs, is_clean)
+        summary = pattern_learner.get_baseline_summary()
+        return JSONResponse(content={
+            "success": True,
+            "message": "Patterns learned successfully",
+            "baseline": summary
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
