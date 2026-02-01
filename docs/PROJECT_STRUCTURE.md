@@ -1,125 +1,76 @@
 # Project Structure
 
-**Last Updated:** February 1, 2026
+Clean, organized codebase with 3 core modules and 1 web interface.
 
----
+## Directory Layout
 
-## 📁 Directory Structure
+\Security-Monitoring-Agent/
+ src/                   # Core modules
+    compressor.py     # ScaleDown API (42 lines)
+    detector.py       # Threat detection (413 lines)
+    utils.py          # Helpers (100+ lines)
+ frontend/             # Web UI
+    index.html       # Dashboard (350 lines)
+ docs/                 # Documentation
+ logs/                 # Sample data
+    sample_logs.txt
+ main.py              # Entry point (133 lines)
+ test.py              # ScaleDown example
+ requirements.txt     # Dependencies
+ .env                 # API keys
+\
+## File Descriptions
 
-```
-Security-Monitoring-Agent/
-├── api/                          # API endpoints and route handlers
-│   ├── __init__.py              # ✅ API module initialization (v0.1.0)
-│   ├── compress.py              # ✅ ScaleDown compression endpoint
-│   ├── analyze.py               # ✅ Complete analysis endpoint
-│   └── detect.py                # ✅ Anomaly detection endpoint
-│
-├── src/                          # Core application logic
-│   ├── __init__.py              # ✅ Core module initialization (v0.1.0)
-│   ├── compressor.py            # ✅ ScaleDown API wrapper
-│   ├── analyzer.py              # [TODO] AI model integration
-│   ├── detector.py              # ✅ Anomaly detection algorithms
-│   └── utils.py                 # ✅ Helper functions
-│
-├── frontend/                     # Web dashboard UI
-│   ├── index.html               # [TODO] Main dashboard page
-│   ├── styles.css               # [TODO] Dashboard styling
-│   └── script.js                # [TODO] Frontend logic
-│
-├── logs/                         # Sample log files for testing
-│   └── sample_logs.txt          # ✅ Demo security logs (37 entries)
-│
-├── tests/                        # Unit and integration tests
-│   ├── test_compression.py      # [TODO] Compression tests
-│   ├── test_analysis.py         # [TODO] Analysis tests
-│   └── test_detection.py        # [TODO] Detection tests
-│
-├── docs/                         # Project documentation
-│   ├── INDEX.md                 # ✅ Documentation index
-│   ├── PROJECT_STRUCTURE.md     # ✅ This file
-│   ├── API.md                   # ✅ API endpoint documentation
-│   ├── ARCHITECTURE.md          # [TODO] System architecture
-│   ├── DEVELOPMENT_LOG.md       # ✅ Development changelog
-│   ├── SETUP_GUIDE.md           # [TODO] Setup instructions
-│   ├── USAGE_GUIDE.md           # [TODO] Usage guide
-│   ├── SCALEDOWN_INTEGRATION.md # ✅ ScaleDown integration docs
-│   └── ANOMALY_DETECTION.md     # ✅ Detection documentation
-│
-├── .env.example                  # ✅ Environment variables template
-├── .gitignore                    # ✅ Git ignore rules
-├── requirements.txt              # ✅ Python dependencies
-├── README.md                     # ✅ project README
-├── app.py                        # [TODO] Main FastAPI application
-└── vercel.json                   # [TODO] Vercel deployment config
-```
+### main.py (Entry Point)
+FastAPI application with single /analyze endpoint.
+- Orchestrates compression + detection workflow
+- Serves frontend HTML
+- Handles errors and validation
 
----
+### src/compressor.py
+ScaleDown REST API integration using requests library.
+- compress_logs() - Calls ScaleDown API
+- get_compression_stats() - Calculates metrics
+- Simple, no complex dependencies
 
-## 📦 Module Descriptions
+### src/detector.py  
+Pattern-based threat detection with 8 threat types.
+- detect_anomalies() - Main detection function
+- 8 regex patterns for common threats
+- Confidence scoring and deduplication
 
-### `/api` - API Layer
-Contains FastAPI route handlers and endpoint definitions.
+### frontend/index.html
+Beautiful single-page dashboard.
+- Gradient design with purple theme
+- Real-time cost savings display
+- Interactive threat cards with color coding
+- Sample log loader button
 
-**Files:** ✅
-- `compress.py` - Handles log compression requests via ScaleDown API ✅
-- `analyze.py` - Complete analysis pipeline (compression + detection) ✅
-- `detect.py` - Manages anomaly detection operations ✅
-- `detect.py` - Manages anomaly detection operations
+## Workflow
 
-### `/src` - Core Logic Layer
-Contains business logic and service implementations.
+1. User  Browser  http://127.0.0.1:8001
+2. User clicks Analyze
+3. Frontend  POST /analyze  main.py
+4. main.py  compressor.py  ScaleDown API
+5. main.py  detector.py  Pattern matching
+6. main.py  Response with stats + threats
+7. Frontend  Display results
 
-**Files:**
-- `__init__.py` - Module initialization ✅
-- `compressor.py` - ScaleDown API integration wrapper ✅
-- `analyzer.py` - AI model service for threat analysis [TODO]
-- `detector.py` - Anomaly detection algorithms (pattern + AI-based) ✅
-- `utils.py` - Shared utility functions (log parsing, formatting, IP extraction) ✅
+Simple linear flow, no complexity.
 
-### `/frontend` - Presentation Layer
-Simple web interface for user interactions.
+## Technology Choices
 
-**Files:**
-- `index.html` - Main dashboard HTML
-- `styles.css` - CSS styling
-- `script.js` - Client-side JavaScript logic
+**FastAPI** - Modern, fast, automatic API docs
+**Requests** - Simple HTTP client for ScaleDown
+**Pure HTML/CSS/JS** - No build tools needed
+**Virtual Environment** - Isolated dependencies
+**File-based logs** - No database required
 
-### `/logs` - Sample Data
-Demo and test log files.
+## What We Removed
 
-### `/tests` - Testing Layer
-Unit tests and integration tests.
+- Old app.py (replaced by main.py)
+- api/ folder (unnecessary structure)
+- Test files (not needed in production)
+- ScaleDown Python package (using REST API instead)
 
-### `/docs` - Documentation
-Comprehensive project documentation (this folder).
-
----
-
-## 🔄 Status Legend
-
-- ✅ **Complete** - File exists and implemented
-- [TODO] - File planned but not yet created
-- 🔄 **In Progress** - Currently being developed
-- ⚠️ **Deprecated** - Marked for removal
-
----
-
-## 📝 Change Log
-
-### 2026-02-01
-- Created folder structure
-- Added `__init__.py` files to api/ and src/
-- Initialized documentation system
-- ✅ Implemented `src/compressor.py` - ScaleDown compression integration
-- ✅ Implemented `src/detector.py` - Anomaly detection with 8 threat 
-- ✅ Implemented `api/compress.py` - Compression API endpoint
-- ✅ Implemented `api/detect.py` - Detection API endpoint
-- ✅ Implemented `api/analyze.py` - Complete analysis endpoint
-- ✅ Created `app.py` - Main FastAPI application
-- ✅ Added sample security logs (37 entries with various threats)
-- ✅ Created API documentationpatterns
-- ✅ Implemented `src/utils.py` - Helper functions for log processing
-
----
-
-*This document is automatically updated when the project structure changes.*
+Clean = Maintainable
