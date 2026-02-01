@@ -33,17 +33,14 @@ class IPInfo:
 class IPThreatIntelligence:
     """
     IP Threat Intelligence service
-    Uses free APIs: ip-api.com for geolocation, AbuseIPDB for threat intel
+    Uses free API: ip-api.com for geolocation and basic threat detection
     """
     
-    def __init__(self, abuseipdb_key: Optional[str] = None):
+    def __init__(self):
         """
         Initialize IP intelligence service
-        
-        Args:
-            abuseipdb_key: Optional AbuseIPDB API key for enhanced threat data
+        Uses free ip-api.com service (no API key required)
         """
-        self.abuseipdb_key = abuseipdb_key
         self.cache = {}  # Simple cache to avoid repeated API calls
         self.cache_duration = timedelta(hours=1)
         
@@ -161,56 +158,11 @@ class IPThreatIntelligence:
     
     def _get_threat_intelligence(self, ip: str) -> Dict:
         """
-        Get threat intelligence data
-        Uses basic heuristics if no API key, enhanced data with AbuseIPDB key
+        Get threat intelligence data using basic heuristics
+        Analyzes IP location, ISP patterns, and known malicious ranges
         """
-        # If we have AbuseIPDB key, use it
-        if self.abuseipdb_key:
-            return self._check_abuseipdb(ip)
-        
-        # Otherwise, use basic heuristics
         return self._basic_threat_check(ip)
     
-    def _check_abuseipdb(self, ip: str) -> Dict:
-        """Check IP against AbuseIPDB"""
-        try:
-            headers = {
-                'Key': self.abuseipdb_key,
-                'Accept': 'application/json'
-            }
-            
-            response = requests.get(
-                'https://api.abuseipdb.com/api/v2/check',
-                headers=headers,
-                params={'ipAddress': ip, 'maxAgeInDays': 90},
-                timeout=5
-            )
-            
-            if response.status_code == 200:
-                data = response.json().get('data', {})
-                abuse_score = data.get('abuseConfidenceScore', 0)
-                
-                # Determine threat level
-                threat_level = 'NONE'
-                if abuse_score > 75:
-                    threat_level = 'CRITICAL'
-                elif abuse_score > 50:
-                    threat_level = 'HIGH'
-                elif abuse_score > 25:
-                    threat_level = 'MEDIUM'
-                elif abuse_score > 0:
-                    threat_level = 'LOW'
-                
-                return {
-                    'is_threat': abuse_score > 0,
-                    'threat_level': threat_level,
-                    'threat_types': data.get('usageType', 'Unknown').split(','),
-                    'last_seen': data.get('lastReportedAt')
-                }
-        except Exception as e:
-            print(f"AbuseIPDB check failed for {ip}: {e}")
-        
-        return {'is_threat': False, 'threat_level': 'NONE', 'threat_types': []}
     
     def _basic_threat_check(self, ip: str) -> Dict:
         """

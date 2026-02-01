@@ -1,14 +1,25 @@
 """
 Security Monitoring Agent - Enhanced Main Application
 Features: Compression, Threat Detection, IP Intelligence, Scoring, AI Insights, History, PDF Reports
+Version: 2.0.0 - Production Ready
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 import os
+import logging
+from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 from src.compressor import SecurityLogCompressor
 from src.detector import SecurityLogDetector
@@ -22,7 +33,18 @@ from src.pattern_learning import PatternLearner
 app = FastAPI(
     title="Security Monitoring Agent",
     description="AI-Powered Security Log Analysis with Compression, Threat Detection, and Intelligence",
-    version="2.0.0"
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# Add CORS middleware for better frontend integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Initialize services
@@ -87,12 +109,15 @@ async def analyze_security_logs(request: AnalyzeRequest):
     Enhanced endpoint: Compress → Detect → Score → Analyze IPs → AI Insights → Save History → Generate PDF
     """
     try:
+        logger.info(f"Starting analysis - Log size: {len(request.logs)} bytes")
+        
         # Step 1: Compress logs with ScaleDown
         compressor = SecurityLogCompressor()
         compression_result = compressor.compress_logs(
             logs=request.logs,
             prompt=request.prompt
         )
+        logger.info(f"Compression complete - Ratio: {compression_result.get('compression_ratio', 0):.2f}x")
         
         # Step 2: Detect anomalies
         detector = SecurityLogDetector()
@@ -285,6 +310,26 @@ async def learn_patterns(logs: str, is_clean: bool = True):
             "message": "Patterns learned successfully",
             "baseline": summary
         })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/download/report/{filename}")
+async def download_report(filename: str):
+    """Download PDF report"""
+    try:
+        file_path = os.path.join("reports", filename)
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Report not found")
+        
+        return FileResponse(
+            file_path,
+            media_type="application/pdf",
+            filename=filename,
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

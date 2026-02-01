@@ -92,65 +92,105 @@ class SecurityLogDetector:
         return {
             # Brute Force Attacks
             'brute_force': {
-                'pattern': r'(failed|denied|invalid).*(login|authentication|password).*(attempt|tried)',
+                'pattern': r'(failed.*login|failed.*authentication|brute.*force|multiple.*failed|account.*lockout)',
                 'type': AnomalyType.BRUTE_FORCE,
-                'severity': ThreatLevel.HIGH,
-                'threshold': 3  # Number of occurrences to trigger
-            },
-            
-            # Unauthorized Access
-            'unauthorized_access': {
-                'pattern': r'(unauthorized|forbidden|access denied|permission denied)',
-                'type': AnomalyType.UNAUTHORIZED_ACCESS,
-                'severity': ThreatLevel.MEDIUM,
+                'severity': ThreatLevel.CRITICAL,
                 'threshold': 2
             },
             
-            # Suspicious Traffic
-            'suspicious_traffic': {
-                'pattern': r'(unusual|suspicious|abnormal).*(traffic|connection|outbound)',
-                'type': AnomalyType.SUSPICIOUS_TRAFFIC,
+            # SQL Injection
+            'sql_injection': {
+                'pattern': r"(sql.*injection|union.*select|drop.*table|or.*1=1|or.*'1'='1|database.*error|sql.*syntax)",
+                'type': AnomalyType.SQL_INJECTION,
                 'severity': ThreatLevel.CRITICAL,
                 'threshold': 1
             },
             
-            # Data Exfiltration
-            'data_exfiltration': {
-                'pattern': r'(large|unusual).*(data transfer|upload|exfiltration)|data.*sent to.*(unknown|external)',
+            # Ransomware
+            'ransomware': {
+                'pattern': r'(ransomware|encryption.*detected|mass.*file.*encryption|\.locked|decrypt.*txt|backup.*deleted)',
+                'type': AnomalyType.MALWARE_ACTIVITY,
+                'severity': ThreatLevel.CRITICAL,
+                'threshold': 1
+            },
+            
+            # Insider Threat / Data Loss
+            'insider_threat': {
+                'pattern': r'(data.*export|employee.*records|usb.*device|external.*drive|data.*loss|sensitive.*data|database.*backup.*downloaded)',
                 'type': AnomalyType.DATA_EXFILTRATION,
+                'severity': ThreatLevel.CRITICAL,
+                'threshold': 1
+            },
+            
+            # DDoS Attack
+            'ddos_attack': {
+                'pattern': r'(ddos.*attack|traffic.*spike|requests.*from|resource.*exhaustion|cpu.*usage.*9|memory.*usage.*9|bandwidth.*saturated|service.*downtime)',
+                'type': AnomalyType.DOS_ATTACK,
                 'severity': ThreatLevel.CRITICAL,
                 'threshold': 1
             },
             
             # Privilege Escalation
             'privilege_escalation': {
-                'pattern': r'(privilege|permission).*(escalat|elevat|gain)|sudo.*(attempt|tried)|root.*access',
+                'pattern': r'(privilege.*escalat|sudo.*command|mimikatz|credential.*dump|lsass\.exe|registry.*modification|sam.*hive|domain.*admins|security.*event.*log.*cleared)',
                 'type': AnomalyType.PRIVILEGE_ESCALATION,
-                'severity': ThreatLevel.HIGH,
-                'threshold': 1
-            },
-            
-            # SQL Injection
-            'sql_injection': {
-                'pattern': r'(sql injection|union select|drop table|or 1=1|<script>)',
-                'type': AnomalyType.SQL_INJECTION,
                 'severity': ThreatLevel.CRITICAL,
                 'threshold': 1
             },
             
-            # Malware Activity
-            'malware': {
-                'pattern': r'(malware|virus|ransomware|trojan|backdoor|cryptominer)',
+            # C2 Communication / Backdoor
+            'c2_communication': {
+                'pattern': r'(command.*control|c2.*server|\.onion|beacon.*detected|backdoor|remote.*code.*execution|trojan|dns.*tunneling)',
+                'type': AnomalyType.SUSPICIOUS_TRAFFIC,
+                'severity': ThreatLevel.CRITICAL,
+                'threshold': 1
+            },
+            
+            # Phishing / Credential Theft
+            'phishing': {
+                'pattern': r'(phishing|credential|fake.*login|password.*reuse|session.*hijacking|account.*compromise|spoofing|malicious.*link)',
+                'type': AnomalyType.ACCOUNT_COMPROMISE,
+                'severity': ThreatLevel.CRITICAL,
+                'threshold': 1
+            },
+            
+            # Cryptomining
+            'cryptomining': {
+                'pattern': r'(cryptomining|cryptocurrency|mining.*pool|xmrig|cpu.*usage.*spike|mining.*software|wallet.*address|stratum.*protocol)',
+                'type': AnomalyType.MALWARE_ACTIVITY,
+                'severity': ThreatLevel.HIGH,
+                'threshold': 1
+            },
+            
+            # Zero-Day / APT
+            'zero_day_apt': {
+                'pattern': r'(zero-day|apt|advanced.*persistent|nation-state|webshell|lateral.*movement|fileless.*malware|kerberoast|anti-forensic|persistence.*mechanism)',
                 'type': AnomalyType.MALWARE_ACTIVITY,
                 'severity': ThreatLevel.CRITICAL,
                 'threshold': 1
             },
             
-            # Account Lockout
-            'account_lockout': {
-                'pattern': r'account.*(locked|disabled|suspended)',
-                'type': AnomalyType.FAILED_AUTH,
-                'severity': ThreatLevel.MEDIUM,
+            # General Data Exfiltration
+            'data_exfiltration': {
+                'pattern': r'(data.*transfer|exfiltration|uploaded.*to|transferred.*to|gb.*data|sensitive.*data)',
+                'type': AnomalyType.DATA_EXFILTRATION,
+                'severity': ThreatLevel.CRITICAL,
+                'threshold': 1
+            },
+            
+            # Unauthorized Access
+            'unauthorized_access': {
+                'pattern': r'(unauthorized|access.*denied|permission.*denied|attempted.*access)',
+                'type': AnomalyType.UNAUTHORIZED_ACCESS,
+                'severity': ThreatLevel.HIGH,
+                'threshold': 1
+            },
+            
+            # Suspicious Process
+            'suspicious_process': {
+                'pattern': r'(suspicious.*process|malicious.*file|\.exe.*started|process.*inject)',
+                'type': AnomalyType.MALWARE_ACTIVITY,
+                'severity': ThreatLevel.HIGH,
                 'threshold': 1
             }
         }
