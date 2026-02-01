@@ -13,6 +13,20 @@
 
 ## 🚀 Hosting Options
 
+### ⚠️ Important: Vercel & Netlify Limitations
+
+**Vercel and Netlify are NOT recommended** for this FastAPI application because:
+- ❌ They're designed for **serverless functions** (short requests)
+- ❌ Your app needs a **persistent server** (long-running process)
+- ❌ SQLite database won't persist across requests
+- ❌ Background tasks and file uploads problematic
+- ❌ 10-second timeout limit on free tier
+
+**Use Vercel/Netlify for**: Static sites, Next.js, serverless APIs  
+**Use Render/Railway for**: FastAPI, Django, persistent servers ✅
+
+---
+
 ### Option 1: Render (Recommended - Free Tier)
 
 **Best for**: Easy deployment, free HTTPS, auto-deploy from GitHub
@@ -192,6 +206,48 @@
 
 ---
 
+### Option 7: Fly.io
+
+**Best for**: Modern deployment, global edge network, free tier
+
+**Steps**:
+1. Install Fly CLI: `powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"`
+2. Sign up: `fly auth signup`
+3. Navigate to your project directory
+4. Launch app: `fly launch`
+   - Choose app name
+   - Select region (closest to you)
+   - Don't deploy PostgreSQL (we use SQLite)
+5. Add environment variables:
+   ```bash
+   fly secrets set SCALEDOWN_API_KEY=your_key
+   fly secrets set OPENAI_API_KEY=your_key
+   ```
+6. Deploy: `fly deploy`
+7. Open: `fly open`
+
+**Cost**: Free tier (3 VMs, 256MB RAM each)
+
+---
+
+### Option 8: Koyeb
+
+**Best for**: Simple deployment, generous free tier
+
+**Steps**:
+1. Sign up at [koyeb.com](https://www.koyeb.com)
+2. Click "Create App" → "GitHub"
+3. Select your repository
+4. Configure:
+   - Builder: Dockerfile or Buildpack
+   - Run command: `python main.py`
+5. Add environment variables
+6. Deploy
+
+**Cost**: Free tier (512MB RAM, 2GB storage)
+
+---
+
 ## 🔧 Production Configuration
 
 ### Update .env for Production
@@ -221,14 +277,38 @@ TARGET_MODEL=gpt-4o-mini
 
 ## 📊 Platform Comparison
 
-| Platform | Free Tier | HTTPS | Auto-Deploy | Ease | Best For |
-|----------|-----------|-------|-------------|------|----------|
-| **Render** | ✅ Yes | ✅ Free | ✅ Yes | ⭐⭐⭐⭐⭐ | Beginners |
-| **Railway** | ✅ $5 credit | ✅ Free | ✅ Yes | ⭐⭐⭐⭐⭐ | Quick deploy |
-| **PythonAnywhere** | ✅ Limited | ✅ Paid | ❌ No | ⭐⭐⭐⭐ | Python focus |
-| **Heroku** | ❌ No | ✅ Free | ✅ Yes | ⭐⭐⭐⭐ | Established |
-| **AWS EC2** | ✅ 1yr trial | ⚙️ Manual | ❌ No | ⭐⭐ | Advanced users |
-| **DigitalOcean** | ❌ No | ✅ Free | ✅ Yes | ⭐⭐⭐⭐ | Professional |
+| Platform | Free Tier | HTTPS | Auto-Deploy | Ease | Best For | Works? |
+|----------|-----------|-------|-------------|------|----------|---------|
+| **Render** | ✅ Yes | ✅ Free | ✅ Yes | ⭐⭐⭐⭐⭐ | Beginners | ✅ **YES** |
+| **Railway** | ✅ $5 credit | ✅ Free | ✅ Yes | ⭐⭐⭐⭐⭐ | Quick deploy | ✅ **YES** |
+| **PythonAnywhere** | ✅ Limited | ✅ Paid | ❌ No | ⭐⭐⭐⭐ | Python focus | ✅ **YES** |
+| **Heroku** | ❌ No | ✅ Free | ✅ Yes | ⭐⭐⭐⭐ | Established | ✅ **YES** |
+| **AWS EC2** | ✅ 1yr trial | ⚙️ Manual | ❌ No | ⭐⭐ | Advanced | ✅ **YES** |
+| **DigitalOcean** | ❌ No | ✅ Free | ✅ Yes | ⭐⭐⭐⭐ | Professional | ✅ **YES** |
+| **Vercel** | ✅ Yes | ✅ Free | ✅ Yes | ⭐⭐⭐⭐⭐ | Static sites | ⚠️ **NO** (serverless only) |
+| **Netlify** | ✅ Yes | ✅ Free | ✅ Yes | ⭐⭐⭐⭐⭐ | Static sites | ⚠️ **NO** (serverless only) |
+
+### ❌ Why Vercel/Netlify Don't Work
+
+**Technical Limitations**:
+1. **Serverless Architecture**: 10-60 second timeout limits
+2. **No Persistent Storage**: SQLite database resets every request
+3. **No Background Tasks**: PDF generation might timeout
+4. **Function Size Limits**: Your app with dependencies too large
+5. **Request/Response Model**: FastAPI needs persistent server
+
+**What Works on Vercel/Netlify**:
+- Static websites (HTML/CSS/JS)
+- Next.js applications
+- Single serverless API endpoints
+- Jamstack applications
+
+**What Your App Needs** (FastAPI):
+- Persistent server process ✅
+- SQLite database ✅
+- File uploads ✅
+- Long-running tasks ✅
+- → Use **Render, Railway, or PythonAnywhere** instead
 
 ---
 
