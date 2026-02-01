@@ -336,4 +336,14 @@ async def download_report(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8001)
+    
+    # Get host and port from environment variables (for hosting platforms)
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", "8001"))
+    
+    print(f"🚀 Starting Security Monitoring Agent v2.0")
+    print(f"📡 Server: http://{host}:{port}")
+    print(f"📚 API Docs: http://{host}:{port}/docs")
+    print(f"🔒 Press CTRL+C to stop\n")
+    
+    uvicorn.run(app, host=host, port=port)
