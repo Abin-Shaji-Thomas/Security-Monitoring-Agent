@@ -13,7 +13,7 @@
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Demo](#-demo) • [Documentation](#-documentation) • [API](#-api)
 
-![Security Dashboard](docs/screenshots/dashboard.png)
+> 📸 **Screenshots Coming Soon** - Dashboard, Analysis, and Dark Mode UI
 
 </div>
 
@@ -161,16 +161,16 @@ Password: admin123
 ## 📸 Demo
 
 ### Dashboard Overview
-![Dashboard](docs/screenshots/dashboard.png)
+> 📊 **Interactive security dashboard** with real-time threat visualization, IP intelligence, and threat distribution charts
 
 ### Threat Analysis
-![Threat Analysis](docs/screenshots/analysis.png)
+> 🔍 **Detailed threat breakdown** showing attack patterns, severity levels, affected IPs, and recommended actions
 
 ### Cost Savings
-![Compression Stats](docs/screenshots/compression.png)
+> 💰 **35-50% compression savings** with natural language conversion - reduces token usage and API costs significantly
 
 ### Dark Mode
-![Dark Mode](docs/screenshots/dark-mode.png)
+> 🌙 **Dark mode interface** for comfortable viewing during extended monitoring sessions
 
 ---
 
