@@ -4,16 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Monitoring Agent v2.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --container-bg: #ffffff;
+            --header-gradient-start: #1e3c72;
+            --header-gradient-end: #2a5298;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+            --shadow: rgba(0,0,0,0.1);
+            --shadow-hover: rgba(0,0,0,0.2);
+            --accent-color: #667eea;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #fee;
+            --error-text: #c00;
+        }
+        
+        [data-theme="dark"] {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --container-bg: #0f3460;
+            --header-gradient-start: #0a1929;
+            --header-gradient-end: #1e3a5f;
+            --text-primary: #e4e4e4;
+            --text-secondary: #b0b0b0;
+            --border-color: #2d4a6e;
+            --card-bg: #1e3a5f;
+            --input-bg: #0a1929;
+            --shadow: rgba(0,0,0,0.4);
+            --shadow-hover: rgba(0,0,0,0.6);
+            --accent-color: #7c8ff0;
+            --success-bg: #1e4620;
+            --success-text: #90ee90;
+            --error-bg: #4a0e0e;
+            --error-text: #ff6b6b;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -21,17 +63,18 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: var(--container-bg);
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
         
         header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
         
         header h1 {
@@ -44,8 +87,30 @@
             opacity: 0.9;
         }
         
+        .theme-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
         .content {
             padding: 40px;
+            background: var(--container-bg);
+            color: var(--text-primary);
         }
         
         .input-section {
@@ -56,7 +121,7 @@
             display: block;
             font-weight: 600;
             margin-bottom: 10px;
-            color: #333;
+            color: var(--text-primary);
             font-size: 1.1em;
         }
         
@@ -64,17 +129,19 @@
             width: 100%;
             min-height: 200px;
             padding: 15px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 14px;
             resize: vertical;
             transition: border-color 0.3s;
+            background: var(--input-bg);
+            color: var(--text-primary);
         }
         
         textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent-color);
         }
         
         .options-section {
@@ -82,7 +149,8 @@
             gap: 20px;
             margin: 15px 0;
             padding: 15px;
-            background: #f5f5f5;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
         }
         
@@ -271,22 +339,23 @@
         
         /* Executive Summary */
         .executive-summary {
-            background: #f8f9fa;
+            background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
             margin-bottom: 30px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid var(--accent-color);
+            border: 1px solid var(--border-color);
         }
         
         .executive-summary h3 {
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 15px;
             font-size: 1.5em;
         }
         
         .executive-summary p {
             line-height: 1.8;
-            color: #555;
+            color: var(--text-secondary);
         }
         
         .stats-grid {
@@ -376,7 +445,7 @@
         .threat-type {
             font-weight: 600;
             font-size: 1.3em;
-            color: #333;
+            color: var(--text-primary);
         }
         
         .threat-badges {
@@ -412,7 +481,7 @@
             gap: 20px;
             margin: 10px 0;
             font-size: 0.9em;
-            color: #666;
+            color: var(--text-secondary);
             flex-wrap: wrap;
         }
         
@@ -423,26 +492,27 @@
         }
         
         .threat-description {
-            color: #555;
+            color: var(--text-secondary);
             margin: 10px 0;
             line-height: 1.6;
         }
         
         .threat-recommendation {
-            background: #f9f9f9;
+            background: var(--card-bg);
             padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid var(--accent-color);
+            border: 1px solid var(--border-color);
         }
         
         .threat-recommendation strong {
-            color: #667eea;
+            color: var(--accent-color);
         }
         
         /* IP Intelligence Section */
         .ip-section {
-            background: #fff9f0;
+            background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
             margin: 30px 0;
@@ -457,10 +527,11 @@
         }
         
         .ip-card {
-            background: white;
+            background: var(--input-bg);
             padding: 15px;
             border-radius: 8px;
             border-left: 4px solid #e74c3c;
+            border: 1px solid var(--border-color);
         }
         
         .ip-address {
@@ -472,24 +543,186 @@
         
         .ip-details {
             font-size: 0.9em;
-            color: #666;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
         
         .success-message {
-            background: #d4edda;
-            color: #155724;
+            background: var(--success-bg);
+            color: var(--success-text);
             padding: 20px;
             border-radius: 8px;
             text-align: center;
             font-size: 1.2em;
             font-weight: 600;
         }
+        
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .chart-container {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+        
+        .chart-container h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Export Section Styles */
+        .export-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .export-section h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px var(--shadow-hover);
+        }
+        
+        .export-btn:active {
+            transform: translateY(0);
+        }
+        
+        .export-btn.csv {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .export-btn.json {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+        
+        .export-btn.excel {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+        
+        /* File Upload Styles */
+        .upload-zone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-zone:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+        
+        .upload-zone.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .upload-text {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .upload-subtext {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .file-info {
+            display: none;
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .file-info.active {
+            display: block;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+        
+        .file-size {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        #fileInput {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                🌙 Dark Mode
+            </button>
             <h1>Security Monitoring Agent v2.0</h1>
             <p>AI-Powered Threat Detection with Risk Scoring & Intelligence</p>
         </header>
@@ -497,7 +730,22 @@
         <div class="content">
             <div class="input-section">
                 <label for="logs">Security Logs</label>
-                <textarea id="logs" placeholder="Paste your security logs here..."></textarea>
+                
+                <!-- File Upload Zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag & Drop Log File Here</div>
+                    <div class="upload-subtext">or click to browse (.txt, .log, .json files)</div>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.log,.json,.csv" />
+                
+                <!-- File Info Display -->
+                <div class="file-info" id="fileInfo">
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+                
+                <textarea id="logs" placeholder="Or paste your security logs here manually..."></textarea>
                 
                 <div class="options-section">
                     <div class="checkbox-option">
@@ -586,9 +834,47 @@
                     <div class="ip-grid" id="ipGrid"></div>
                 </div>
                 
+                <!-- Data Visualization Charts -->
+                <div class="charts-section" id="chartsSection" style="display:none;">
+                    <div class="chart-container">
+                        <h3>📊 Threat Distribution</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="threatChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>💰 Cost Savings</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="savingsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>⚡ Security Score</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Threats -->
                 <h2 class="section-title">Detected Threats</h2>
                 <div id="threats"></div>
+                
+                <!-- Export Section -->
+                <div class="export-section" id="exportSection" style="display:none;">
+                    <h3>📥 Export Analysis Results</h3>
+                    <div class="export-buttons">
+                        <button class="export-btn csv" onclick="exportData('csv')">
+                            📊 Export CSV
+                        </button>
+                        <button class="export-btn json" onclick="exportData('json')">
+                            📄 Export JSON
+                        </button>
+                        <button class="export-btn excel" onclick="exportData('excel')">
+                            📑 Export Excel
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- PDF Link -->
                 <div id="pdfLink" style="display:none; margin-top: 30px; padding: 20px; background: #e8f5e9; border-radius: 8px; text-align: center;">
@@ -608,39 +894,428 @@
     
     <script>
         let currentPdfFilename = null;
+        let threatChart, savingsChart, scoreChart;
+        
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeBtn = document.getElementById('themeToggle');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                themeBtn.innerHTML = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeBtn.innerHTML = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Load theme preference on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeBtn = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.innerHTML = '☀️ Light Mode';
+            }
+        });
+        
+        // Chart Creation Functions
+        function createThreatChart(threats) {
+            const ctx = document.getElementById('threatChart');
+            if (!ctx) return;
+            
+            // Count threats by severity
+            const severityCounts = {
+                CRITICAL: 0,
+                HIGH: 0,
+                MEDIUM: 0,
+                LOW: 0
+            };
+            
+            threats.forEach(threat => {
+                severityCounts[threat.severity]++;
+            });
+            
+            if (threatChart) {
+                threatChart.destroy();
+            }
+            
+            threatChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [
+                            severityCounts.CRITICAL,
+                            severityCounts.HIGH,
+                            severityCounts.MEDIUM,
+                            severityCounts.LOW
+                        ],
+                        backgroundColor: [
+                            '#e74c3c',
+                            '#ff9800',
+                            '#ffc107',
+                            '#4caf50'
+                        ],
+                        borderWidth: 2,
+                        borderColor: getComputedStyle(document.documentElement)
+                            .getPropertyValue('--container-bg')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--text-primary'),
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createSavingsChart(costSavings) {
+            const ctx = document.getElementById('savingsChart');
+            if (!ctx) return;
+            
+            if (savingsChart) {
+                savingsChart.destroy();
+            }
+            
+            const saved = costSavings.tokens_saved || 0;
+            const used = costSavings.compressed_tokens || 0;
+            
+            savingsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Original', 'Compressed', 'Saved'],
+                    datasets: [{
+                        label: 'Tokens',
+                        data: [
+                            (saved + used),
+                            used,
+                            saved
+                        ],
+                        backgroundColor: [
+                            '#e74c3c',
+                            '#4caf50',
+                            '#667eea'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--text-secondary')
+                            },
+                            grid: {
+                                color: getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--border-color')
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--text-secondary')
+                            },
+                            grid: {
+                                color: getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--border-color')
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createScoreChart(overallSecurity) {
+            const ctx = document.getElementById('scoreChart');
+            if (!ctx) return;
+            
+            if (scoreChart) {
+                scoreChart.destroy();
+            }
+            
+            const score = overallSecurity.health_score || 0;
+            const remaining = 100 - score;
+            
+            scoreChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Security Score', 'Risk'],
+                    datasets: [{
+                        data: [score, remaining],
+                        backgroundColor: [
+                            score >= 80 ? '#4caf50' : 
+                            score >= 60 ? '#ffc107' : 
+                            score >= 40 ? '#ff9800' : '#e74c3c',
+                            '#e0e0e0'
+                        ],
+                        borderWidth: 2,
+                        borderColor: getComputedStyle(document.documentElement)
+                            .getPropertyValue('--container-bg')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    circumference: 180,
+                    rotation: -90,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '/100';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // File Upload Handlers
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const logsTextarea = document.getElementById('logs');
+        
+        // Click to open file picker
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // Highlight drop zone when dragging
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => {
+                uploadZone.classList.add('dragover');
+            }, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => {
+                uploadZone.classList.remove('dragover');
+            }, false);
+        });
+        
+        // Handle dropped files
+        uploadZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }, false);
+        
+        // Handle selected files
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Read and process file
+        function handleFile(file) {
+            // Validate file type
+            const validExtensions = ['txt', 'log', 'json', 'csv'];
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            if (!validExtensions.includes(extension)) {
+                alert('Invalid file type. Please upload .txt, .log, .json, or .csv files.');
+                return;
+            }
+            
+            // Validate file size (max 10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                alert('File too large. Maximum size is 10MB.');
+                return;
+            }
+            
+            // Display file info
+            document.getElementById('fileName').textContent = `📄 ${file.name}`;
+            document.getElementById('fileSize').textContent = `Size: ${formatFileSize(file.size)}`;
+            fileInfo.classList.add('active');
+            
+            // Read file content
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                logsTextarea.value = e.target.result;
+                uploadZone.style.borderColor = '#4caf50';
+                uploadZone.querySelector('.upload-text').textContent = '✓ File Loaded Successfully';
+            };
+            reader.onerror = () => {
+                alert('Error reading file. Please try again.');
+            };
+            reader.readAsText(file);
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
         
         const sampleDatasets = {
-            1: `2026-02-01T09:15:22Z INFO User alice logged in from 192.168.1.50
-2026-02-01T09:18:33Z WARNING Failed login attempt for user root from 45.142.212.88
-2026-02-01T09:18:35Z WARNING Failed login attempt for user admin from 45.142.212.88
-2026-02-01T09:18:37Z WARNING Failed login attempt for user administrator from 45.142.212.88
-2026-02-01T09:18:39Z WARNING Failed login attempt for user test from 45.142.212.88
-2026-02-01T09:18:41Z WARNING Failed login attempt for user guest from 45.142.212.88
-2026-02-01T09:18:43Z CRITICAL Account lockout triggered for user admin - multiple failed attempts
-2026-02-01T09:18:45Z WARNING Failed login attempt for user user from 45.142.212.88
-2026-02-01T09:18:47Z WARNING Failed login attempt for user webadmin from 45.142.212.88
-2026-02-01T09:20:00Z INFO System alert: SSH brute force attack detected from 45.142.212.88`,
+            1: `2026-02-01T09:00:00Z INFO Security monitoring service started successfully
+2026-02-01T09:05:12Z INFO User alice logged in from 192.168.1.50 via SSH key authentication
+2026-02-01T09:10:33Z INFO Scheduled backup process initiated for database cluster
+2026-02-01T09:15:22Z INFO Network firewall rules updated - 45 new IP addresses blocked
+2026-02-01T09:18:15Z INFO User bob accessed file server from 192.168.1.75
+2026-02-01T09:18:33Z WARNING Failed login attempt for user root from 45.142.212.88 - Invalid password
+2026-02-01T09:18:35Z WARNING Failed login attempt for user admin from 45.142.212.88 - Invalid password
+2026-02-01T09:18:37Z WARNING Failed login attempt for user administrator from 45.142.212.88 - Invalid password
+2026-02-01T09:18:39Z WARNING Failed login attempt for user test from 45.142.212.88 - Invalid password
+2026-02-01T09:18:41Z WARNING Failed login attempt for user guest from 45.142.212.88 - Invalid password
+2026-02-01T09:18:43Z CRITICAL Account lockout triggered for user admin - multiple failed attempts within 60 seconds
+2026-02-01T09:18:45Z WARNING Failed login attempt for user user from 45.142.212.88 - Invalid password
+2026-02-01T09:18:47Z WARNING Failed login attempt for user webadmin from 45.142.212.88 - Invalid password
+2026-02-01T09:18:49Z WARNING Failed login attempt for user sysadmin from 45.142.212.88 - Invalid password
+2026-02-01T09:18:51Z WARNING Failed login attempt for user superuser from 45.142.212.88 - Invalid password
+2026-02-01T09:18:53Z WARNING Failed login attempt for user oracle from 45.142.212.88 - Invalid password
+2026-02-01T09:18:55Z WARNING Failed login attempt for user postgres from 45.142.212.88 - Invalid password
+2026-02-01T09:18:57Z WARNING Failed login attempt for user mysql from 45.142.212.88 - Invalid password
+2026-02-01T09:18:59Z WARNING Failed login attempt for user apache from 45.142.212.88 - Invalid password
+2026-02-01T09:19:01Z WARNING Failed login attempt for user nginx from 45.142.212.88 - Invalid password
+2026-02-01T09:19:03Z WARNING Failed login attempt for user ubuntu from 45.142.212.88 - Invalid password
+2026-02-01T09:19:05Z WARNING Failed login attempt for user centos from 45.142.212.88 - Invalid password
+2026-02-01T09:19:07Z WARNING Failed login attempt for user redhat from 45.142.212.88 - Invalid password
+2026-02-01T09:19:09Z WARNING Failed login attempt for user debian from 45.142.212.88 - Invalid password
+2026-02-01T09:19:11Z WARNING Failed login attempt for user ftpuser from 45.142.212.88 - Invalid password
+2026-02-01T09:19:13Z CRITICAL SSH authentication failure threshold exceeded - 25 attempts in 45 seconds
+2026-02-01T09:19:15Z ALERT Intrusion Detection System triggered: Brute force attack pattern detected
+2026-02-01T09:19:17Z WARNING Failed login attempt for user backup from 45.142.212.88 - Invalid password
+2026-02-01T09:19:19Z WARNING Failed login attempt for user support from 45.142.212.88 - Invalid password
+2026-02-01T09:19:21Z ERROR Rate limiting triggered for IP 45.142.212.88 - 30 failed attempts
+2026-02-01T09:19:30Z CRITICAL Firewall rule added: Blocking IP 45.142.212.88 for 24 hours
+2026-02-01T09:20:00Z ALERT System alert: SSH brute force attack detected from 45.142.212.88 - IP permanently blacklisted
+2026-02-01T09:20:15Z INFO Security team notified of brute force attack via email and Slack
+2026-02-01T09:20:30Z INFO Threat intelligence feed updated with attacker IP 45.142.212.88
+2026-02-01T09:21:00Z INFO Enhanced monitoring enabled for all SSH connections for next 4 hours
+2026-02-01T09:25:00Z INFO User alice completed work session and logged out from 192.168.1.50
+2026-02-01T09:30:00Z INFO Automated security scan completed - no additional threats found
+2026-02-01T09:35:00Z INFO Failed login attempt logs archived to compliance storage
+2026-02-01T09:40:00Z INFO Security incident report generated: INCIDENT-2026-02-01-001
+2026-02-01T09:45:00Z INFO All systems operating normally - threat mitigated successfully`,
 
-            2: `2026-02-01T11:30:15Z INFO User bob accessed /products page from 203.0.113.45
-2026-02-01T11:30:45Z ERROR HTTP Request: GET /api/users?id=1' OR '1'='1 from 203.0.113.45
+            2: `2026-02-01T11:00:00Z INFO Web application server initialization complete - Apache 2.4.52
+2026-02-01T11:15:30Z INFO User bob authenticated successfully from 203.0.113.45
+2026-02-01T11:20:15Z INFO Database connection pool healthy - 25 active connections
+2026-02-01T11:25:00Z INFO User bob accessed /products page from 203.0.113.45 - Response time: 145ms
+2026-02-01T11:28:30Z INFO Shopping cart session created for user bob - Session ID: abc123
+2026-02-01T11:30:15Z INFO Normal browsing activity: Category filter applied on /products page
+2026-02-01T11:30:45Z ERROR HTTP Request: GET /api/users?id=1' OR '1'='1 from 203.0.113.45 - SQL injection detected
+2026-02-01T11:30:46Z WARNING Web Application Firewall: Malicious payload detected in request parameters
 2026-02-01T11:30:47Z ERROR HTTP Request: GET /search?q=test'; DROP TABLE users;-- from 203.0.113.45
-2026-02-01T11:30:50Z CRITICAL Database error: SQL syntax error in query execution
-2026-02-01T11:30:52Z ERROR HTTP Request: POST /login username=admin' AND 1=1-- from 203.0.113.45
-2026-02-01T11:31:00Z ALERT Web Application Firewall blocked request from 203.0.113.45
-2026-02-01T11:31:05Z ERROR HTTP Request: GET /api/orders?id=5 UNION SELECT password FROM users-- from 203.0.113.45
-2026-02-01T11:31:10Z CRITICAL Multiple SQL injection attempts detected from 203.0.113.45
-2026-02-01T11:31:15Z INFO IP 203.0.113.45 has been blacklisted`,
+2026-02-01T11:30:48Z CRITICAL SQL injection attempt: DROP TABLE command detected in search query
+2026-02-01T11:30:49Z ERROR HTTP Request: GET /admin/users?filter=' UNION SELECT NULL-- from 203.0.113.45
+2026-02-01T11:30:50Z CRITICAL Database error: SQL syntax error in query execution - protected by prepared statements
+2026-02-01T11:30:51Z ERROR HTTP Request: POST /api/products?id=5' OR 1=1-- from 203.0.113.45
+2026-02-01T11:30:52Z ERROR HTTP Request: POST /login username=admin' AND 1=1-- password=test from 203.0.113.45
+2026-02-01T11:30:53Z WARNING Authentication bypass attempt detected using SQL injection
+2026-02-01T11:30:54Z ERROR HTTP Request: GET /api/customers?email=test@test.com' OR 'a'='a from 203.0.113.45
+2026-02-01T11:30:55Z ERROR HTTP Request: GET /search?term=book' UNION SELECT username,password FROM admin-- from 203.0.113.45
+2026-02-01T11:30:56Z CRITICAL Attempted extraction of password table detected
+2026-02-01T11:30:57Z ERROR HTTP Request: POST /checkout cart_id=1' UNION ALL SELECT credit_card FROM payments-- from 203.0.113.45
+2026-02-01T11:30:58Z CRITICAL Payment data extraction attempt detected - Critical severity
+2026-02-01T11:30:59Z ERROR HTTP Request: GET /api/comments?id=1 UNION SELECT table_name FROM information_schema.tables-- from 203.0.113.45
+2026-02-01T11:31:00Z ALERT Web Application Firewall blocked 15 requests from 203.0.113.45 in 15 seconds
+2026-02-01T11:31:02Z ERROR HTTP Request: GET /download?file=../../../etc/passwd from 203.0.113.45
+2026-02-01T11:31:03Z WARNING Path traversal attempt detected - Directory access blocked
+2026-02-01T11:31:05Z ERROR HTTP Request: GET /api/orders?id=5 UNION SELECT password,email FROM users WHERE role='admin'-- from 203.0.113.45
+2026-02-01T11:31:07Z ERROR HTTP Request: POST /api/update SET role='admin' WHERE username='bob'-- from 203.0.113.45
+2026-02-01T11:31:08Z CRITICAL Privilege escalation attempt via SQL injection detected
+2026-02-01T11:31:10Z CRITICAL Multiple SQL injection attempts detected from 203.0.113.45 - Attack pattern recognized
+2026-02-01T11:31:12Z ALERT Rate limit exceeded: 25 malicious requests in 30 seconds from 203.0.113.45
+2026-02-01T11:31:15Z ERROR IP 203.0.113.45 has been blacklisted across all web application firewalls
+2026-02-01T11:31:20Z INFO Security incident logged: SQL_INJECTION_ATTACK_2026-02-01-002
+2026-02-01T11:31:30Z INFO Database integrity check initiated - No data compromise detected
+2026-02-01T11:31:45Z INFO Security team notified of SQL injection attack via automated alert system
+2026-02-01T11:32:00Z INFO All user sessions from IP 203.0.113.45 have been terminated
+2026-02-01T11:35:00Z INFO Web application firewall rules updated with new attack signatures 
+2026-02-01T11:40:00Z INFO Forensic analysis complete - Attack originated from Tor exit node`,
 
-            3: `2026-02-01T14:00:00Z INFO User charlie working on document reports.docx
-2026-02-01T14:22:30Z WARNING Suspicious process: crypto_locker.exe started in C:\\Users\\charlie\\Downloads
-2026-02-01T14:22:35Z CRITICAL Mass file encryption detected: 150 files modified in 30 seconds
-2026-02-01T14:22:40Z ALERT File extension changed: report.docx to report.docx.locked
-2026-02-01T14:22:42Z ALERT File extension changed: budget.xlsx to budget.xlsx.locked
-2026-02-01T14:22:45Z CRITICAL Ransomware behavior: Wallpaper changed to ransom note
-2026-02-01T14:22:50Z ERROR Unauthorized encryption key generated
-2026-02-01T14:23:00Z CRITICAL Outbound connection: 2.5GB data transfer to 185.220.101.45:443
-2026-02-01T14:23:10Z ALERT File created: README_DECRYPT.txt with ransom instructions
-2026-02-01T14:23:15Z CRITICAL System backup files deleted in C:\\Backups`,
+            3: `2026-02-01T13:45:00Z INFO User charlie authenticated to workstation DESK-225 successfully
+2026-02-01T13:50:00Z INFO Microsoft Office applications started - Word, Excel, Outlook  
+2026-02-01T14:00:00Z INFO User charlie opened document: Q4_Financial_Report.docx from Documents folder
+2026-02-01T14:05:00Z INFO Auto-save triggered for document reports.docx - 2,450 words
+2026-02-01T14:10:00Z INFO Email application synchronized - 15 new messages received
+2026-02-01T14:15:30Z INFO User charlie downloaded attachment invoice_march.zip from email
+2026-02-01T14:22:15Z WARNING File extracted from archive: invoice.exe - Suspicious executable in ZIP
+2026-02-01T14:22:20Z WARNING Process started: invoice.exe from C:\\Users\\charlie\\Downloads - No digital signature
+2026-02-01T14:22:25Z ALERT Behavioral anomaly: Process attempting to access multiple document directories
+2026-02-01T14:22:30Z WARNING Suspicious process: crypto_locker.exe started in C:\\Users\\charlie\\Downloads\\temp
+2026-02-01T14:22:32Z CRITICAL Mass file encryption detected: 50 files modified in 5 seconds
+2026-02-01T14:22:34Z CRITICAL Mass file encryption detected: 100 files modified in 10 seconds
+2026-02-01T14:22:35Z CRITICAL Mass file encryption detected: 150 files modified in 15 seconds
+2026-02-01T14:22:36Z ALERT File extension changed: Annual_Report_2025.docx to Annual_Report_2025.docx.locked
+2026-02-01T14:22:37Z ALERT File extension changed: Employee_Database.xlsx to Employee_Database.xlsx.locked
+2026-02-01T14:22:38Z ALERT File extension changed: Project_Proposal.pptx to Project_Proposal.pptx.locked
+2026-02-01T14:22:40Z ALERT File extension changed: Budget_2026.xlsx to Budget_2026.xlsx.locked
+2026-02-01T14:22:41Z ALERT File extension changed: Contract_Template.docx to Contract_Template.docx.locked
+2026-02-01T14:22:42Z ALERT File extension changed: Sales_Data_Q1.xlsx to Sales_Data_Q1.xlsx.locked
+2026-02-01T14:22:43Z CRITICAL Registry modification: Wallpaper registry key changed by crypto_locker.exe
+2026-02-01T14:22:45Z CRITICAL Ransomware behavior: Desktop wallpaper changed to ransom note image
+2026-02-01T14:22:47Z ERROR Unauthorized cryptographic operation: RSA-2048 encryption key generated
+2026-02-01T14:22:50Z ERROR Mass encryption continuing: Photos directory (892 files) being encrypted
+2026-02-01T14:22:55Z CRITICAL Shadow copy deletion detected: Volume Shadow Copies being removed
+2026-02-01T14:22:57Z ERROR Windows Backup service stopped by malicious process
+2026-02-01T14:23:00Z CRITICAL Outbound connection established: 2.5GB data transfer to 185.220.101.45:443
+2026-02-01T14:23:05Z WARNING Encrypted communication detected: TLS tunnel to command and control server
+2026-02-01T14:23:10Z ALERT File created: README_DECRYPT.txt in C:\\Users\\charlie\\Desktop with ransom instructions
+2026-02-01T14:23:12Z ALERT Ransom note displayed: Bitcoin payment of 0.5 BTC demanded within 72 hours
+2026-02-01T14:23:15Z CRITICAL System backup files deleted in C:\\Backups\\Daily_Incremental
+2026-02-01T14:23:18Z CRITICAL Weekly backup archives deleted in C:\\Backups\\Weekly_Full
+2026-02-01T14:23:20Z ERROR File encryption completed: 1,247 files encrypted across 8 directories
+2026-02-01T14:23:25Z CRITICAL Endpoint Detection and Response triggered: Ransomware behavior confirmed
+2026-02-01T14:23:30Z ALERT Workstation DESK-225 isolated from network by automated response
+2026-02-01T14:23:35Z ERROR User charlie's session forcefully terminated for security containment
+2026-02-01T14:23:40Z INFO Incident response team notified - Ransomware outbreak detected
+2026-02-01T14:23:50Z INFO Network share access disabled for affected user account
+2026-02-01T14:24:00Z INFO Forensic image capture initiated for workstation DESK-225
+2026-02-01T14:25:00Z INFO Malware sample extracted and submitted to threat intelligence platform
+2026-02-01T14:30:00Z INFO Recovery process initiated from offline backup system (24 hours old)`,
 
             4: `2026-02-01T16:45:00Z INFO User david_contractor logged in from 192.168.1.105
 2026-02-01T16:45:30Z WARNING User david_contractor accessed HR database outside normal hours
@@ -943,8 +1618,57 @@
                 currentPdfFilename = null;
             }
             
+            // Render Charts
+            if (data.threats && data.threats.length > 0) {
+                document.getElementById('chartsSection').style.display = 'grid';
+                createThreatChart(data.threats);
+                createSavingsChart(data.cost_savings);
+                if (data.overall_security) {
+                    createScoreChart(data.overall_security);
+                }
+            } else {
+                document.getElementById('chartsSection').style.display = 'none';
+            }
+            
             // Show results
             document.getElementById('results').classList.add('active');
+            
+            // Show export section
+            document.getElementById('exportSection').style.display = 'block';
+            
+            // Create charts
+            document.getElementById('chartsSection').style.display = 'grid';
+            createThreatChart(data.threats);
+            createSavingsChart(data.cost_savings);
+            if (data.overall_security) {
+                createScoreChart(data.overall_security);
+            }
+        }
+        
+        // Export Functions
+        function exportData(format) {
+            const url = `/export/${format}`;
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `security_analysis_${format}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show success message
+            const exportSection = document.getElementById('exportSection');
+            const originalHTML = exportSection.innerHTML;
+            
+            exportSection.innerHTML = `
+                <h3>✅ Export Successful!</h3>
+                <p style="color: var(--text-secondary);">Your ${format.toUpperCase()} file is downloading...</p>
+            `;
+            
+            setTimeout(() => {
+                exportSection.innerHTML = originalHTML;
+            }, 3000);
         }
         
         function showError(message) {

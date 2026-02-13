@@ -4,10 +4,11 @@ Features: Compression, Threat Detection, IP Intelligence, Scoring, AI Insights, 
 Version: 2.0.0 - Production Ready
 """
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Depends, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 import os
@@ -29,6 +30,8 @@ from src.ai_insights import AIInsightsEngine
 from src.history import ThreatHistoryDB
 from src.pdf_report import PDFReportGenerator
 from src.pattern_learning import PatternLearner
+from src.export_utils import exporter
+from src.auth import auth, UserRole
 
 app = FastAPI(
     title="Security Monitoring Agent",
@@ -88,6 +91,84 @@ class AnalyzeResponse(BaseModel):
     pattern_anomalies: Optional[List[Dict]] = None
 
 
+# Authentication Models
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+    full_name: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: Dict[str, Any]
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: Optional[str]
+    role: str
+    is_active: bool
+    created_at: str
+    last_login: Optional[str]
+
+class APIKeyRequest(BaseModel):
+    key_name: str
+    api_key: str
+
+
+# Security
+security = HTTPBearer()
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)) -> Dict:
+    """Dependency to get current authenticated user"""
+    token = credentials.credentials
+    payload = auth.verify_token(token)
+    
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = auth.get_user_by_id(payload.get("user_id"))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    return user
+
+
+def require_role(required_role: UserRole):
+    """Dependency factory to check user role"""
+    def role_checker(current_user: Dict = Depends(get_current_user)) -> Dict:
+        user_role = UserRole(current_user['role'])
+        
+        # Admin has access to everything
+        if user_role == UserRole.ADMIN:
+            return current_user
+        
+        # Check if user has required role
+        if user_role != required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions. Required role: {required_role.value}"
+            )
+        
+        return current_user
+    
+    return role_checker
+
+
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
     """Serve the main HTML page"""
@@ -101,6 +182,139 @@ async def serve_frontend():
         <p>Frontend not found. API available at <a href="/docs">/docs</a></p>
         </body></html>
         """)
+
+
+# Authentication Endpoints
+@app.post("/auth/register", response_model=Token)
+async def register(request: RegisterRequest):
+    """Register a new user"""
+    try:
+        user = auth.register_user(
+            username=request.username,
+            email=request.email,
+            password=request.password,
+            full_name=request.full_name
+        )
+        
+        # Generate token
+        token = auth.create_access_token(data={"user_id": user['id']})
+        
+        return Token(
+            access_token=token,
+            token_type="bearer",
+            user=user
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/auth/login", response_model=Token)
+async def login(request: LoginRequest):
+    """Login user and return JWT token"""
+    user = auth.authenticate_user(request.username, request.password)
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generate token
+    token = auth.create_access_token(data={"user_id": user['id']})
+    
+    return Token(
+        access_token=token,
+        token_type="bearer",
+        user=user
+    )
+
+
+@app.get("/auth/me", response_model=UserResponse)
+async def get_current_user_info(current_user: Dict = Depends(get_current_user)):
+    """Get current user information"""
+    return UserResponse(**current_user)
+
+
+@app.get("/auth/users", response_model=List[UserResponse])
+async def get_all_users(current_user: Dict = Depends(require_role(UserRole.ADMIN))):
+    """Get all users (Admin only)"""
+    users = auth.get_all_users()
+    return [UserResponse(**user) for user in users]
+
+
+@app.put("/auth/users/{user_id}/role")
+async def update_user_role(
+    user_id: int,
+    role: str,
+    current_user: Dict = Depends(require_role(UserRole.ADMIN))
+):
+    """Update user role (Admin only)"""
+    try:
+        success = auth.update_user_role(user_id, role)
+        if not success:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"message": "Role updated successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.put("/auth/users/{user_id}/deactivate")
+async def deactivate_user(
+    user_id: int,
+    current_user: Dict = Depends(require_role(UserRole.ADMIN))
+):
+    """Deactivate user (Admin only)"""
+    success = auth.deactivate_user(user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deactivated successfully"}
+
+
+@app.put("/auth/users/{user_id}/activate")
+async def activate_user(
+    user_id: int,
+    current_user: Dict = Depends(require_role(UserRole.ADMIN))
+):
+    """Activate user (Admin only)"""
+    success = auth.activate_user(user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User activated successfully"}
+
+
+@app.post("/auth/api-keys")
+async def add_api_key(
+    request: APIKeyRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Add API key for current user"""
+    try:
+        auth.add_api_key(current_user['id'], request.key_name, request.api_key)
+        return {"message": "API key added successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/auth/api-keys")
+async def get_api_keys(current_user: Dict = Depends(get_current_user)):
+    """Get all API keys for current user"""
+    keys = auth.get_user_api_keys(current_user['id'])
+    return {"api_keys": keys}
+
+
+@app.delete("/auth/api-keys/{key_id}")
+async def delete_api_key(
+    key_id: int,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Delete API key"""
+    success = auth.delete_api_key(key_id, current_user['id'])
+    if not success:
+        raise HTTPException(status_code=404, detail="API key not found")
+    return {"message": "API key deleted successfully"}
 
 
 @app.post("/analyze", response_model=AnalyzeResponse)
@@ -221,7 +435,7 @@ async def analyze_security_logs(request: AnalyzeRequest):
         for threat in threats_with_scores:
             formatted_threats.append(ThreatInfo(**threat))
         
-        return AnalyzeResponse(
+        response_data = AnalyzeResponse(
             success=True,
             compressed_context=compression_result.get('compressed_context', ''),
             ai_response=compression_result.get('content', 'Analysis complete'),
@@ -234,6 +448,18 @@ async def analyze_security_logs(request: AnalyzeRequest):
             pdf_report_path=pdf_path,
             pattern_anomalies=pattern_anomalies
         )
+        
+        # Store for export
+        exporter.store_analysis({
+            'threats': threats_with_scores,
+            'overall_security': overall_security,
+            'compression_stats': compression_stats,
+            'cost_savings': cost_savings,
+            'ip_intelligence': ip_data,
+            'executive_summary': executive_summary
+        })
+        
+        return response_data
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
@@ -330,6 +556,69 @@ async def download_report(filename: str):
                 "Content-Disposition": f"attachment; filename={filename}"
             }
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/export/csv")
+async def export_csv():
+    """Export threats to CSV format"""
+    try:
+        csv_data = exporter.export_to_csv()
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"threats_{timestamp}.csv"
+        
+        return Response(
+            content=csv_data,
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/export/json")
+async def export_json():
+    """Export full analysis to JSON format"""
+    try:
+        json_data = exporter.export_to_json()
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"analysis_{timestamp}.json"
+        
+        return Response(
+            content=json_data,
+            media_type="application/json",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/export/excel")
+async def export_excel():
+    """Export comprehensive analysis to Excel format"""
+    try:
+        excel_data = exporter.export_to_excel()
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"security_analysis_{timestamp}.xlsx"
+        
+        return Response(
+            content=excel_data,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

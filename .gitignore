@@ -91,6 +91,13 @@ uploaded_logs/
 processed_data/
 cache/
 .cache/
+reports/*.pdf
+reports/*.csv
+reports/*.json
+reports/*.xlsx
+*.backup
+*.bak.md
+COMPRESSION_README.md
 
 # API Keys and Secrets (double-check)
 *secret*
