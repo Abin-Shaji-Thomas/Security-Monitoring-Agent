@@ -166,8 +166,9 @@ Ready-to-use log files in `/logs` directory:
 
 ## 📚 Documentation
 
-- **[TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** - Complete technical documentation, architecture, and API details
-- **[DEMO_QUICK_REFERENCE.md](DEMO_QUICK_REFERENCE.md)** - Demo cheat sheet with instant answers
+- **[TECHNICAL_GUIDE.md](docs/TECHNICAL_GUIDE.md)** - Complete technical documentation, architecture, and API details
+- **[DEMO_QUICK_REFERENCE.md](docs/DEMO_QUICK_REFERENCE.md)** - Demo cheat sheet with instant answers
+- **[PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** - Project cleanup summary and organization
 - **API Docs** - Interactive Swagger UI at http://127.0.0.1:8001/docs
 
 ---
@@ -197,6 +198,12 @@ Security-Monitoring-Agent/
 ├── requirements.txt           # Dependencies
 ├── .env                      # API keys (configured)
 ├── setup.bat                 # Windows setup script
+├── README.md                 # This file
+│
+├── docs/                     # 📚 Documentation
+│   ├── TECHNICAL_GUIDE.md    # Complete technical docs
+│   ├── DEMO_QUICK_REFERENCE.md # Demo cheat sheet
+│   └── PROJECT_STATUS.md     # Project organization
 │
 ├── src/                      # Core modules
 │   ├── compressor.py         # ScaleDown API integration
@@ -281,8 +288,8 @@ MIT License - See LICENSE file for details
 ## 📞 Support
 
 For technical questions during demo:
-- See [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md) for detailed documentation
-- See [DEMO_QUICK_REFERENCE.md](DEMO_QUICK_REFERENCE.md) for quick answers
+- See [TECHNICAL_GUIDE.md](docs/TECHNICAL_GUIDE.md) for detailed documentation
+- See [DEMO_QUICK_REFERENCE.md](docs/DEMO_QUICK_REFERENCE.md) for quick answers
 - Check API docs at http://127.0.0.1:8001/docs
 
 ---

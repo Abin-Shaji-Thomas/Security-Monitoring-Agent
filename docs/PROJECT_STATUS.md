@@ -12,10 +12,11 @@
 - ❌ `docs/screenshots/` - Empty folders
 
 ### Files Kept & Updated:
-- ✅ `README.md` - **Updated** - Streamlined and accurate
-- ✅ `setup.bat` - **Updated** - Better user experience
-- ✅ `TECHNICAL_GUIDE.md` - Complete technical documentation
-- ✅ `DEMO_QUICK_REFERENCE.md` - Quick demo cheat sheet
+- ✅ `README.md` - **Updated** - Streamlined and accurate (in root)
+- ✅ `setup.bat` - **Updated** - Better user experience (in root)
+- ✅ `docs/TECHNICAL_GUIDE.md` - Complete technical documentation
+- ✅ `docs/DEMO_QUICK_REFERENCE.md` - Quick demo cheat sheet
+- ✅ `docs/PROJECT_STATUS.md` - This file
 - ✅ `.env` - **Configured** with your API keys
 - ✅ `.env.example` - Template for others
 - ✅ `requirements.txt` - All dependencies listed
@@ -87,10 +88,10 @@ python main.py
 ## 📚 DOCUMENTATION GUIDE
 
 ### For Demo Presentation:
-**Open [DEMO_QUICK_REFERENCE.md](DEMO_QUICK_REFERENCE.md)** - Keep this visible during your Google Meet demo. It has instant answers to all common questions.
+**Open [docs/DEMO_QUICK_REFERENCE.md](DEMO_QUICK_REFERENCE.md)** - Keep this visible during your Google Meet demo. It has instant answers to all common questions.
 
 ### For Technical Questions:
-**Open [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** - Complete technical documentation covering:
+**Open [docs/TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** - Complete technical documentation covering:
 - Full tech stack breakdown
 - Architecture diagram
 - Feature explanations
@@ -99,7 +100,10 @@ python main.py
 - Demo talking points
 
 ### For General Info:
-**Open [README.md](README.md)** - Overview and quick start guide
+**Open [README.md](../README.md)** - Overview and quick start guide (in root folder)
+
+### For Project Status:
+**This file** - [docs/PROJECT_STATUS.md](PROJECT_STATUS.md) - Cleanup summary and organization
 
 ---
 
@@ -150,18 +154,19 @@ Your `.env` file is configured with:
 
 ```
 Security-Monitoring-Agent/
-├── 📄 Core Files (6)
-│   ├── main.py              # FastAPI app (21KB)
-│   ├── requirements.txt     # Dependencies
+├── 📄 Core Files (6 in root)
+│   ├── README.md           # Main documentation
+│   ├── main.py             # FastAPI app (21KB)
+│   ├── requirements.txt    # Dependencies
 │   ├── .env                # API keys (configured!)
-│   ├── .env.example         # Template
+│   ├── .env.example        # Template
 │   ├── setup.bat           # Setup script
 │   └── .gitignore          # Git config
 │
-├── 📚 Documentation (3)
-│   ├── README.md                   # Overview
+├── 📚 Documentation (in docs/)
 │   ├── TECHNICAL_GUIDE.md          # Complete tech docs
-│   └── DEMO_QUICK_REFERENCE.md     # Cheat sheet
+│   ├── DEMO_QUICK_REFERENCE.md     # Demo cheat sheet
+│   └── PROJECT_STATUS.md           # This file
 │
 ├── 💻 Source Code (11 modules)
 │   └── src/
