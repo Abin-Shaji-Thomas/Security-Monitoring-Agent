@@ -4,16 +4,13 @@
 
 ### AI-Powered Security Log Analysis with Smart Compression
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/yourusername/Security-Monitoring-Agent)
-[![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 **Transform security logs into actionable intelligence while saving 35-50% on AI processing costs**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Demo](#-demo) • [Documentation](#-documentation) • [API](#-api)
-
-> 📸 **Screenshots Coming Soon** - Dashboard, Analysis, and Dark Mode UI
+[Quick Start](#-quick-start) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Documentation](#-documentation)
 
 </div>
 
@@ -21,182 +18,282 @@
 
 ## 🎯 Overview
 
-Security Monitoring Agent is a production-ready security log analysis system that combines AI-powered threat detection with intelligent compression. By converting structured logs into natural language, the system achieves 35-50% compression rates with ScaleDown API, dramatically reducing analysis costs while maintaining full security context.
+An enterprise-grade security log analysis system that combines **dual-LLM architecture** (ScaleDown + OpenAI) with intelligent compression to reduce AI costs by **35-50%** while detecting **13 threat patterns** in real-time.
+
+**Built for**: Gen AI Hackathon | **Demo**: http://127.0.0.1:8001
 
 ### Key Highlights
 
-- **🔍 13 Threat Patterns Detected** - Brute force, SQL injection, ransomware, DDoS, and more
-- **💰 35-50% Cost Savings** - Smart compression reduces token usage without losing context
-- **⚡ Real-time Analysis** - Process security events in under 2 seconds
-- **🔐 Authentication & RBAC** - JWT-based auth with Admin/Analyst/Viewer roles
-- **📊 Interactive Dashboard** - Dark mode, live charts, instant insights
-- **📤 Multi-Format Export** - CSV, JSON, Excel with professional formatting
+- **💰 35-50% Cost Savings** - Intelligent compression reduces token usage without losing security context
+- **🔍 13 Threat Patterns** - Brute force, SQL injection, ransomware, DDoS, privilege escalation, and more
+- **🤖 Dual-LLM Approach** - ScaleDown API (compression) + OpenAI (insights)
+- **⚡ Real-time Analysis** - Sub-2-second processing with comprehensive threat detection
+- **🔐 Production-Ready** - JWT auth, RBAC (3 roles), API documentation, multi-format exports
+- **📊 Modern UI** - Dark mode, Chart.js visualizations, drag-and-drop interface
 
 ---
 
 ## ✨ Features
 
-### 🔒 Security Analysis
+### 🔒 **13 Threat Patterns Detected**
+Brute Force • SQL Injection • Ransomware • DDoS • Privilege Escalation • Command & Control • Data Exfiltration • Malware • Cryptomining • Phishing • Port Scanning • XSS • Backdoors • Zero-Day Exploits
 
-- **Threat Detection**: Identifies 13 attack patterns including:
-  - Brute Force & Failed Authentication
-  - SQL Injection & Database Attacks
-  - Ransomware & File Encryption
-  - DDoS & Resource Exhaustion
-  - Privilege Escalation
-  - Command & Control (C2) Communication
-  - Data Exfiltration
-  - Malware & Cryptomining
-  - Phishing & Social Engineering
+### 💡 **Smart Compression (The Innovation)**
+- Converts structured logs → natural language → compressed context
+- ScaleDown API integration with GPT-4o
+- Real-time cost savings tracking
+- 35-50% token reduction without losing security context
 
-- **IP Intelligence**: Geolocation and threat level assessment for all source IPs
-- **Risk Scoring**: CVSS-inspired scoring (0-10) with severity classification
-- **Pattern Learning**: ML-based anomaly detection for unknown threats
-- **Executive Summary**: AI-generated incident reports with recommendations
+### 🤖 **AI-Powered Analysis**
+- **OpenAI GPT-4o-mini**: Executive summaries and incident response recommendations
+- **IP Intelligence**: Geolocation and threat assessment
+- **Risk Scoring**: CVSS-inspired 0-10 scale with severity classification
+- **Pattern Learning**: ML-based anomaly detection
 
-### 💡 Smart Compression
-
-- **Natural Language Conversion**: Transforms structured logs into compressible prose
-- **ScaleDown API Integration**: Leverages advanced AI compression (gpt-4o)
-- **35-50% Savings**: Real cost reduction on every analysis
-- **Automatic Optimization**: Adjusts compression based on log size and complexity
-
-### 🎨 User Interface
-
-- **Modern Design**: Gradient backgrounds, smooth animations, professional styling
-- **Dark Mode**: Easy-on-the-eyes dark theme with localStorage persistence
-- **Interactive Charts**: Chart.js visualizations (threat distribution, cost savings, security score)
-- **Drag & Drop Upload**: Easy file upload with validation (10MB limit)
-- **Live Results**: Real-time analysis updates with progress indicators
-
-### 🔐 Authentication & Authorization
-
-- **JWT Token Auth**: Secure bearer token authentication
-- **Role-Based Access Control**: Three roles (Admin, Analyst, Viewer)
-- **User Management**: Full CRUD operations for admins
-- **API Key Management**: Per-user API key generation and tracking
-- **Password Security**: Argon2 hashing with salt
-
-### 📊 Data Export
-
-- **CSV Export**: Clean, formatted threat lists
-- **JSON Export**: Complete analysis data with metadata
-- **Excel Export**: Multi-sheet workbooks with:
-  - Summary dashboard
-  - Detailed threat list
-  - IP intelligence data
-  - Conditional formatting for critical threats
+### 🎨 **Production Features**
+- **Modern UI**: Dark mode, Chart.js visualizations, drag-and-drop uploads
+- **JWT Authentication**: Argon2 password hashing, 3-tier RBAC (Admin/Analyst/Viewer)
+- **Multi-Format Export**: CSV, JSON, Excel (formatted), PDF reports
+- **API Documentation**: Interactive Swagger UI at `/docs`
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+- Python 3.14+ or 3.8+
+- ScaleDown API key ([Get it here](https://scaledown.xyz))
+- OpenAI API key ([Get it here](https://platform.openai.com/api-keys)) - Optional
 
-- Python 3.8 or higher
-- ScaleDown API key ([Get one here](https://scaledown.xyz))
-- Git (for cloning)
+### Windows Setup (Automated)
 
-### Installation
+```powershell
+# Double-click setup.bat or run:
+./setup.bat
+```
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/Security-Monitoring-Agent.git
-cd Security-Monitoring-Agent
+This will:
+1. Create virtual environment
+2. Install all dependencies
+3. Create `.env` file from template
+4. Prompt you to add API keys
 
-# Create virtual environment
+### Manual Setup
+
+```powershell
+# Create and activate virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+.\.venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure environment variables
-cp .env.example .env
-# Edit .env and add your SCALEDOWN_API_KEY
+# Configure API keys
+copy .env.example .env
+notepad .env  # Add your API keys
 ```
 
-### Configuration
+### Configure Environment
 
-Edit `.env` file:
+Edit `.env` and add your API keys:
 
 ```env
-# REQUIRED: ScaleDown API key for log compression
-SCALEDOWN_API_KEY=your_api_key_here
-
-# OPTIONAL: OpenAI for enhanced analysis (system works without it)
-OPENAI_API_KEY=your_openai_key_here
-
-# Server configuration
-HOST=0.0.0.0
-PORT=8001
+SCALEDOWN_API_KEY=your_scaledown_key_here     # REQUIRED
+OPENAI_API_KEY=your_openai_key_here           # OPTIONAL (recommended)
 ```
 
-### Run the Server
+### Start the Server
 
-```bash
+```powershell
 python main.py
 ```
 
-The server will start on `http://127.0.0.1:8001`
+### Access the Application
 
-### Access the Dashboard
-
-Open your browser and navigate to:
-- **Web UI**: http://127.0.0.1:8001
+- **Dashboard**: http://127.0.0.1:8001
 - **API Docs**: http://127.0.0.1:8001/docs
-- **ReDoc**: http://127.0.0.1:8001/redoc
-
-### Default Admin Credentials
-
-```
-Username: admin
-Password: admin123
-```
-
-**⚠️ Change these credentials immediately in production!**
+- **Login**: `admin` / `admin123` ⚠️ *Change in production!*
 
 ---
 
-## 📸 Demo
+## 🏗️ Tech Stack
 
-### Dashboard Overview
-> 📊 **Interactive security dashboard** with real-time threat visualization, IP intelligence, and threat distribution charts
+### Core Framework
+- **FastAPI** 0.115.0 - Modern async web framework
+- **Uvicorn** 0.32.0 - ASGI server
+- **Pydantic** 2.9.2 - Data validation
 
-### Threat Analysis
-> 🔍 **Detailed threat breakdown** showing attack patterns, severity levels, affected IPs, and recommended actions
+### AI & LLM Integration
+- **ScaleDown API** 0.1.4 - Log compression using GPT-4o (35-50% cost savings)
+- **OpenAI API** 1.54.3 - Executive insights using GPT-4o-mini
+- **Pattern Learning** - ML-based anomaly detection
 
-### Cost Savings
-> 💰 **35-50% compression savings** with natural language conversion - reduces token usage and API costs significantly
+### Security
+- **JWT** - Token-based authentication
+- **Argon2** - Password hashing
+- **Python-JOSE** - JWT handling
+- **RBAC** - 3-tier role-based access
 
-### Dark Mode
-> 🌙 **Dark mode interface** for comfortable viewing during extended monitoring sessions
+### Data Processing
+- **Pandas** 3.0.1 - Log parsing
+- **NumPy** 2.4.2 - Numerical computations
+- **SQLite** - Local persistence
+
+### Export & Reporting
+- **ReportLab** 4.4.10 - PDF generation
+- **XlsxWriter** 3.2.9 - Excel export
+- **CSV/JSON** - Standard formats
+
+### Frontend
+- **Vanilla JavaScript** - No framework overhead
+- **Chart.js** - Interactive visualizations
+- **HTML5/CSS3** - Modern responsive design
+
+---
+
+## 📊 Demo Files Included
+
+Ready-to-use log files in `/logs` directory:
+
+- **logs_normal.txt** - Routine system activity (baseline)
+- **logs_medium.txt** - Moderate threats (8-12 detections)
+- **logs_critical.txt** - High-severity attacks (15+ threats) ⭐ **Best for demo**
+- **logs_brute_force.log** - Brute force attack simulation
+- **logs_attacks.json** - JSON format support
+- **logs_system.log** - Clean system logs
 
 ---
 
 ## 📚 Documentation
 
-### User Guides
-- [Installation Guide](docs/guides/INSTALLATION.md)
-- [User Manual](docs/guides/USER_GUIDE.md)
-- [Authentication Setup](docs/guides/AUTHENTICATION.md)
-- [Export Guide](docs/guides/EXPORT.md)
-
-### Developer Docs
-- [API Documentation](docs/api/API.md)
-- [Architecture Overview](docs/ARCHITECTURE.md)
-- [Compression Deep Dive](docs/COMPRESSION.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
-
-### Deployment
-- [Production Deployment](docs/guides/DEPLOYMENT.md)
-- [Security Best Practices](docs/guides/SECURITY.md)
+- **[TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** - Complete technical documentation, architecture, and API details
+- **[DEMO_QUICK_REFERENCE.md](DEMO_QUICK_REFERENCE.md)** - Demo cheat sheet with instant answers
+- **API Docs** - Interactive Swagger UI at http://127.0.0.1:8001/docs
 
 ---
 
-## 🔧 API Reference
+## 🎯 Key Endpoints
 
-### Authentication
+### Public
+- `GET /` - Web dashboard
+- `POST /auth/login` - User authentication
+- `POST /auth/register` - New user registration
+
+### Protected (Requires JWT)
+- `POST /analyze` - Analyze security logs
+- `GET /history` - Retrieve analysis history
+- `POST /export/{format}` - Export results (csv/json/excel/pdf)
+- `GET /users` - User management (Admin only)
+
+Full API documentation at: http://127.0.0.1:8001/docs
+
+---
+
+## 📁 Project Structure
+
+```
+Security-Monitoring-Agent/
+├── main.py                    # FastAPI application
+├── requirements.txt           # Dependencies
+├── .env                      # API keys (configured)
+├── setup.bat                 # Windows setup script
+│
+├── src/                      # Core modules
+│   ├── compressor.py         # ScaleDown API integration
+│   ├── ai_insights.py        # OpenAI integration
+│   ├── detector.py           # Threat pattern detection (13 patterns)
+│   ├── scoring.py            # Risk scoring engine
+│   ├── auth.py               # JWT authentication
+│   ├── export_utils.py       # Multi-format export
+│   └── ...                   # 5 more modules
+│
+├── frontend/index.html       # Web UI (dark mode, Chart.js)
+├── logs/                     # Demo log files (7 samples)
+├── data/                     # SQLite database storage
+└── reports/                  # Generated PDF reports
+```
+
+---
+
+## 💰 Cost Savings Example
+
+**Without Compression:**
+- 1000 log entries = ~5000 tokens
+- Cost with GPT-4o: $0.025 per analysis
+
+**With Smart Compression:**
+- 1000 log entries → compressed to ~2500 tokens
+- Cost: $0.0125 per analysis
+- **Savings: $0.0125 (50%)**
+
+At scale: 1000 analyses/day = **$12.50/day saved** = **$4,562/year saved**
+
+---
+
+## 🛠️ Development
+
+### Run Tests
+```powershell
+pytest
+```
+
+### Code Formatting
+```powershell
+black .
+flake8 .
+```
+
+### Environment
+- Python 3.14 recommended (compatible with 3.8+)
+- Windows PowerShell preferred
+- Virtual environment strongly recommended
+
+---
+
+## 🤝 Contributing
+
+This is a hackathon project currently maintained as a demo. For production use:
+
+1. Change default admin credentials
+2. Use environment-specific `.env` files
+3. Implement rate limiting for production
+4. Configure proper CORS origins
+5. Use PostgreSQL for production database
+6. Add monitoring and logging infrastructure
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details
+
+---
+
+## 🙏 Acknowledgments
+
+- **ScaleDown API** - Intelligent log compression
+- **OpenAI** - AI-powered insights
+- **FastAPI** - Modern web framework
+- **Chart.js** - Beautiful visualizations
+
+---
+
+## 📞 Support
+
+For technical questions during demo:
+- See [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md) for detailed documentation
+- See [DEMO_QUICK_REFERENCE.md](DEMO_QUICK_REFERENCE.md) for quick answers
+- Check API docs at http://127.0.0.1:8001/docs
+
+---
+
+<div align="center">
+
+**Built with ❤️ for Gen AI Hackathon**
+
+**Demo Ready** • **Production Capable** • **Cost Optimized**
+
+</div>
 
 ```bash
 # Login
